@@ -7,13 +7,13 @@ use rand_distr::{Distribution, Normal};
 
 const BAND_SIZE_MIN: f32 = 170.0;
 const BAND_SIZE_MAX: f32 = 200.0;
-const BAND_Z_INDEX_START: f32 = 50.0;
-const EMPTY_AREA_SIZE_MIN: f32 = 50.0;
-const EMPTY_AREA_SIZE_MAX: f32 = 200.0;
+const BAND_Z_INDEX_START: f32 = -10.0;
+const EMPTY_AREA_SIZE_MIN: f32 = 250.0;
+const EMPTY_AREA_SIZE_MAX: f32 = 500.0;
 const MIN_STARS_IN_CLUSTER: u32 = 1;
 const MAX_STARS_IN_CLUSTER: u32 = 5;
-const STAR_SIZE_MEAN: f32 = 1.0;
-const STAR_SIZE_DEVIATION: f32 = 1.0;
+const STAR_SIZE_MEAN: f32 = 2.0;
+const STAR_SIZE_DEVIATION: f32 = 0.5;
 
 #[derive(Component)]
 struct Band {
@@ -156,7 +156,7 @@ fn generate_clusters(
 fn add_star(commands: &mut Commands, asset_server: &Res<AssetServer>, star: NewStar) {
     commands.spawn_bundle(SpriteBundle {
         texture: asset_server.load("star_large.png"),
-        transform: Transform::from_xyz(star.x, star.y, 100.0).with_scale(Vec3::new(
+        transform: Transform::from_xyz(star.x, star.y, 0.0).with_scale(Vec3::new(
             0.1 * star.size.sqrt(),
             0.1 * star.size.sqrt(),
             1.0,

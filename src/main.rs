@@ -26,17 +26,25 @@ macro_rules! some_or_return {
 mod camera;
 mod debug;
 mod star_generation;
+mod top_down_camera;
 
 fn main() {
-    App::new()
-        .add_plugins(DefaultPlugins)
+    let mut app = App::new();
+
+    app.add_plugins(DefaultPlugins)
         .add_plugin(StarGenerationPlugin)
         .add_plugin(DebugPlugin)
         .add_plugin(ShapePlugin)
         .add_plugin(CameraPlugin)
         .insert_resource(Msaa { samples: 4 })
-        .add_startup_system(setup)
-        .run();
+        .add_startup_system(setup);
+
+    #[cfg(target_arch = "wasm32")]
+    {
+        app.add_system(bevy_web_resizer::web_resize_system);
+    }
+
+    app.add_system(bevy_web_resizer::web_resize_system).run();
 }
 
 fn setup(

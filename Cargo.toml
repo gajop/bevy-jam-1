@@ -8,6 +8,7 @@ version = "0.1.0"
 [dependencies]
 bevy = {version = "0.6.0"}
 bevy-inspector-egui = "0.8"
+bevy-web-resizer = "0.1"
 bevy_prototype_lyon = "0.4.0"
 rand = "0.8.3"
 rand_distr = "0.4.3"
