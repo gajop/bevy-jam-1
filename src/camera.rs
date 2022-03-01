@@ -13,7 +13,6 @@ impl Plugin for CameraPlugin {
 
 fn setup_camera(mut commands: Commands) {
     let mut camera_bundle = OrthographicCameraBundle::new_2d();
-    info!(camera_bundle.camera.near);
     camera_bundle.transform.translation.z = 500.0;
 
     commands.spawn_bundle(camera_bundle).insert(TopDownCamera {

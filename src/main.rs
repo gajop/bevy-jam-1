@@ -3,6 +3,7 @@ use bevy_prototype_lyon::plugin::ShapePlugin;
 
 use camera::CameraPlugin;
 use debug::DebugPlugin;
+use players::PlayerPlugin;
 use star_generation::StarGenerationPlugin;
 
 macro_rules! ok_or_return {
@@ -25,6 +26,7 @@ macro_rules! some_or_return {
 
 mod camera;
 mod debug;
+mod players;
 mod star_generation;
 mod top_down_camera;
 
@@ -36,6 +38,7 @@ fn main() {
         .add_plugin(DebugPlugin)
         .add_plugin(ShapePlugin)
         .add_plugin(CameraPlugin)
+        .add_plugin(PlayerPlugin)
         .insert_resource(Msaa { samples: 4 })
         .add_startup_system(setup);
 
@@ -44,7 +47,7 @@ fn main() {
         app.add_system(bevy_web_resizer::web_resize_system);
     }
 
-    app.add_system(bevy_web_resizer::web_resize_system).run();
+    app.run();
 }
 
 fn setup(
