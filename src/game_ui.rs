@@ -11,15 +11,19 @@ pub struct GameUiPlugin;
 #[derive(Component)]
 pub struct StarText;
 
+#[derive(Component)]
+pub struct PlayerStarText;
+
 impl Plugin for GameUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(color_assigned_star)
+        app.add_system(player_assigned_star)
+            .add_system(star_assignment_changed)
             .add_system(star_resource_label)
             .add_system(update_star_text);
     }
 }
 
-fn color_assigned_star(
+fn player_assigned_star(
     mut query: Query<(Entity, &mut Sprite, &OwnedBy), (With<Star>, Added<OwnedBy>)>,
     player_query: Query<&Player>,
     mut commands: Commands,
@@ -55,9 +59,36 @@ fn color_assigned_star(
                 transform: Transform::from_xyz(0.0, -55.0, 0.0),
                 ..Default::default()
             })
+            .insert(PlayerStarText)
             .id();
 
         commands.entity(entity).push_children(&[label]);
+    }
+}
+
+fn star_assignment_changed(
+    mut query_star: Query<(&mut Sprite, &OwnedBy, &Children), (With<Star>, Changed<OwnedBy>)>,
+    mut q_player_star_text: Query<&mut Text, With<PlayerStarText>>,
+    player_query: Query<&Player>,
+) {
+    for (mut sprite, owned_by, children) in query_star.iter_mut() {
+        let player = find_player_by_id(owned_by.player_id, &player_query);
+        if player.is_none() {
+            continue;
+        }
+        let player = player.unwrap();
+
+        sprite.color = player.color;
+
+        // q_attached_fleet: Query<(&AttachedFleet, &Children)>,
+        // mut q_star_text: Query<&mut Text, With<StarText>>,
+
+        for &child in children.iter() {
+            let text = q_player_star_text.get_mut(child);
+            if let Ok(mut text) = text {
+                text.sections[0].value = player.name.to_string();
+            }
+        }
     }
 }
 
@@ -103,7 +134,6 @@ fn star_resource_label(
     }
 }
 
-// fn update_star_text(mut query: Query<(&mut Text, &Star, &AttachedFleet), (With<StarText>)>) {
 fn update_star_text(
     q_attached_fleet: Query<(&AttachedFleet, &Children)>,
     mut q_star_text: Query<&mut Text, With<StarText>>,
@@ -118,6 +148,5 @@ fn update_star_text(
                 text.sections[1].value = format!("  F: {:.2}", fleet.size);
             }
         }
-        // let star_text = q_star_text.get_mut(entity);
     }
 }

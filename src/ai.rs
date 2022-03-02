@@ -1,0 +1,79 @@
+use bevy::{core::FixedTimestep, prelude::*};
+
+use crate::{
+    players::{find_player_by_id, OwnedBy, Player},
+    ship::{AttachedFleet, Fleet, FlyTo},
+    star_generation::Star,
+};
+
+const EVERY_FIVE_SECONDS: f64 = 5.0;
+
+pub struct AiPlugin;
+
+impl Plugin for AiPlugin {
+    fn build(&self, app: &mut App) {
+        app.add_system_set(
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(EVERY_FIVE_SECONDS))
+                .with_system(send_fleet),
+        );
+    }
+}
+
+fn send_fleet(
+    q_attached_fleet: Query<(Entity, &AttachedFleet, &Transform)>,
+    q_enemy_stars: Query<(Entity, Option<&OwnedBy>, &Transform), With<Star>>,
+    mut q_fleet: Query<&mut Fleet>,
+    mut commands: Commands,
+) {
+    for (first_entity, attached_fleet, transform) in q_attached_fleet.iter() {
+        let mut fleet = q_fleet.get_mut(attached_fleet.fleet_id).unwrap();
+
+        let mut closest_distance = f32::MAX;
+        let mut selected_enemy = None;
+
+        for (enemy, other_star, other_transfrorm) in q_enemy_stars.iter() {
+            if first_entity == enemy {
+                continue;
+            }
+            if let Some(other_star) = other_star {
+                if fleet.player_id == other_star.player_id {
+                    continue;
+                }
+            }
+
+            let dx = transform.translation.x - other_transfrorm.translation.x;
+            let dy = transform.translation.y - other_transfrorm.translation.y;
+            let distance_squared = dx * dx + dy * dy;
+            if distance_squared < closest_distance {
+                closest_distance = distance_squared;
+                selected_enemy = Some(enemy);
+            }
+        }
+
+        if let Some(selected_enemy) = selected_enemy {
+            let send_fleet_size = fleet.size * 0.5;
+            fleet.size -= send_fleet_size;
+
+            commands
+                .spawn()
+                .insert(Fleet {
+                    player_id: fleet.player_id,
+                    size: send_fleet_size,
+                })
+                .insert(FlyTo {
+                    origin_star: first_entity,
+                    destination_star: selected_enemy,
+                });
+            info!("Send fleet size: {send_fleet_size} {closest_distance}");
+        }
+
+        // for &child in children.iter() {
+        //     let text = q_star_text.get_mut(child);
+        //     if let Ok(mut text) = text {
+        //         text.sections[1].value = format!("  F: {:.2}", fleet.size);
+        //     }
+        // }
+        // let star_text = q_star_text.get_mut(entity);
+    }
+}

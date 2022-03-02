@@ -1,3 +1,4 @@
+use ai::AiPlugin;
 use bevy::prelude::*;
 use bevy_prototype_lyon::plugin::ShapePlugin;
 
@@ -26,6 +27,7 @@ macro_rules! some_or_return {
     };
 }
 
+mod ai;
 mod camera;
 mod debug;
 mod game_ui;
@@ -38,18 +40,19 @@ fn main() {
     let mut app = App::new();
 
     app.add_plugins(DefaultPlugins)
-        .add_plugin(StarGenerationPlugin)
-        .add_plugin(DebugPlugin)
-        .add_plugin(ShapePlugin)
+        .add_plugin(AiPlugin)
         .add_plugin(CameraPlugin)
-        .add_plugin(PlayerPlugin)
+        .add_plugin(DebugPlugin)
         .add_plugin(GameUiPlugin)
+        .add_plugin(PlayerPlugin)
+        .add_plugin(ShapePlugin)
         .add_plugin(ShipPlugin)
+        .add_plugin(StarGenerationPlugin)
         .insert_resource(Msaa { samples: 4 });
 
     #[cfg(target_arch = "wasm32")]
     {
-        // app.add_system(bevy_web_resizer::web_resize_system);
+        app.add_system(bevy_web_resizer::web_resize_system);
     }
 
     app.run();
