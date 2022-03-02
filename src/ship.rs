@@ -1,15 +1,18 @@
-use bevy::prelude::*;
+use bevy::{core::FixedTimestep, prelude::*};
 
 use crate::{
     players::{find_player_by_id, OwnedBy, Player},
     star_generation::Star,
 };
 
+const TWICE_PER_SECOND: f64 = 30.0 / 60.0;
+
 pub struct ShipPlugin;
 
 #[derive(Component)]
 pub struct Fleet {
     player_id: usize,
+    size: f32,
 }
 
 #[derive(Component)]
@@ -19,29 +22,32 @@ pub struct AttachedFleet {
 
 impl Plugin for ShipPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(generate_ships_at_owned_stars)
-            .add_system(generate_new_ships_at_owned_stars);
+        app.add_system_set(
+            SystemSet::new()
+                .with_run_criteria(FixedTimestep::step(TWICE_PER_SECOND))
+                .with_system(generate_ships_at_owned_stars),
+        )
+        .add_system(generate_new_ships_at_owned_stars);
     }
 }
 
 fn generate_ships_at_owned_stars(
-    mut query: Query<(Entity, &Star, &OwnedBy)>,
-    player_query: Query<&Player>,
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
+    query: Query<(&AttachedFleet, &Star)>,
+    mut fleet_query: Query<&mut Fleet>,
 ) {
-    for (entity, mut sprite, owned_by) in query.iter_mut() {
-        // info!("Owned star: {}", owned_by.player_id);
+    for (attached_fleet, star) in query.iter() {
+        let mut fleet = fleet_query.get_mut(attached_fleet.fleet_id).unwrap();
+        fleet.size += star.size * 0.1;
     }
 }
 
 fn generate_new_ships_at_owned_stars(
-    mut query: Query<(Entity, &Star, &OwnedBy), Without<AttachedFleet>>,
+    mut query: Query<(Entity, &OwnedBy), (With<Star>, Without<AttachedFleet>)>,
     player_query: Query<&Player>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    for (entity, mut star, owned_by) in query.iter_mut() {
+    for (entity, owned_by) in query.iter_mut() {
         let player = find_player_by_id(owned_by.player_id, &player_query);
         if player.is_none() {
             continue;
@@ -60,6 +66,7 @@ fn generate_new_ships_at_owned_stars(
             })
             .insert(Fleet {
                 player_id: owned_by.player_id,
+                size: 0.0,
             })
             .id();
 
