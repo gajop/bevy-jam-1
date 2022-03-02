@@ -2,15 +2,20 @@ use bevy::prelude::*;
 
 use crate::{
     players::{find_player_by_id, OwnedBy, Player},
+    ship::{AttachedFleet, Fleet},
     star_generation::Star,
 };
 
 pub struct GameUiPlugin;
 
+#[derive(Component)]
+pub struct StarText;
+
 impl Plugin for GameUiPlugin {
     fn build(&self, app: &mut App) {
         app.add_system(color_assigned_star)
-            .add_system(star_resource_label);
+            .add_system(star_resource_label)
+            .add_system(update_star_text);
     }
 }
 
@@ -21,7 +26,7 @@ fn color_assigned_star(
     asset_server: Res<AssetServer>,
 ) {
     let text_alignment = TextAlignment {
-        vertical: VerticalAlign::Bottom,
+        vertical: VerticalAlign::Top,
         horizontal: HorizontalAlign::Center,
     };
     let font = asset_server.load("fonts/FiraSans-Bold.ttf");
@@ -47,7 +52,7 @@ fn color_assigned_star(
                     text_style.clone(),
                     text_alignment,
                 ),
-                transform: Transform::from_xyz(0.0, 55.0, 0.0),
+                transform: Transform::from_xyz(0.0, -55.0, 0.0),
                 ..Default::default()
             })
             .id();
@@ -62,7 +67,7 @@ fn star_resource_label(
     asset_server: Res<AssetServer>,
 ) {
     let text_alignment = TextAlignment {
-        vertical: VerticalAlign::Top,
+        vertical: VerticalAlign::Bottom,
         horizontal: HorizontalAlign::Center,
     };
     let font = asset_server.load("fonts/FiraSans-Bold.ttf");
@@ -75,16 +80,44 @@ fn star_resource_label(
     for (entity, star) in query.iter() {
         let label = commands
             .spawn_bundle(Text2dBundle {
-                text: Text::with_section(
-                    format!("{:.2}M", star.size),
-                    text_style.clone(),
-                    text_alignment,
-                ),
-                transform: Transform::from_xyz(0.0, -55.0, 0.0),
+                text: Text {
+                    sections: vec![
+                        TextSection {
+                            value: format!("M: {:.2}", star.size),
+                            style: text_style.clone(),
+                        },
+                        TextSection {
+                            value: "".to_string(), // fleet placeholder
+                            style: text_style.clone(),
+                        },
+                    ],
+                    alignment: text_alignment,
+                },
+                transform: Transform::from_xyz(0.0, 55.0, 0.0),
                 ..Default::default()
             })
+            .insert(StarText)
             .id();
 
         commands.entity(entity).push_children(&[label]);
+    }
+}
+
+// fn update_star_text(mut query: Query<(&mut Text, &Star, &AttachedFleet), (With<StarText>)>) {
+fn update_star_text(
+    q_attached_fleet: Query<(&AttachedFleet, &Children)>,
+    mut q_star_text: Query<&mut Text, With<StarText>>,
+    q_fleet: Query<&Fleet>,
+) {
+    for (attached_fleet, children) in q_attached_fleet.iter() {
+        let fleet = q_fleet.get(attached_fleet.fleet_id).unwrap();
+
+        for &child in children.iter() {
+            let text = q_star_text.get_mut(child);
+            if let Ok(mut text) = text {
+                text.sections[1].value = format!("  F: {:.2}", fleet.size);
+            }
+        }
+        // let star_text = q_star_text.get_mut(entity);
     }
 }

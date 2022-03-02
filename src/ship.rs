@@ -11,13 +11,13 @@ pub struct ShipPlugin;
 
 #[derive(Component)]
 pub struct Fleet {
-    player_id: usize,
-    size: f32,
+    pub player_id: usize,
+    pub size: f32,
 }
 
 #[derive(Component)]
 pub struct AttachedFleet {
-    fleet_id: Entity,
+    pub fleet_id: Entity,
 }
 
 impl Plugin for ShipPlugin {
