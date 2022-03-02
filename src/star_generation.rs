@@ -2,7 +2,7 @@ use std::f32::consts::PI;
 
 use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
-use rand::{prelude::StdRng, Rng, SeedableRng};
+use rand::Rng;
 use rand_distr::{Distribution, Normal};
 
 const BAND_SIZE_MIN: f32 = 170.0;
@@ -17,7 +17,7 @@ const STAR_SIZE_DEVIATION: f32 = 1.0;
 
 #[derive(Component)]
 struct Band {
-    index: i32,
+    // index: i32,
     cluster_count: i32,
     distance_from_center: f32,
     size: f32,
@@ -30,14 +30,15 @@ pub struct NewStar {
 }
 
 #[derive(Component)]
-pub struct Star {}
+pub struct Star {
+    pub size: f32,
+}
 
 pub struct StarGenerationPlugin;
 
 impl Plugin for StarGenerationPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(generate_bands.label("star-generation"))
-            .add_system(generate_clusters);
+        app.add_startup_system(generate_bands.label("star-generation"));
     }
 }
 
@@ -76,7 +77,7 @@ fn generate_bands(mut commands: Commands, asset_server: Res<AssetServer>) {
         let cluster_count = ((index + 1) as f32 * 2.0 * PI) as i32;
 
         let band = Band {
-            index,
+            // index,
             distance_from_center,
             size,
             cluster_count,
@@ -116,15 +117,15 @@ fn generate_bands(mut commands: Commands, asset_server: Res<AssetServer>) {
     }
 }
 
-fn generate_clusters(
-    query: Query<&Band, Added<Band>>,
-    mut commands: Commands,
-    asset_server: Res<AssetServer>,
-) {
-    // for band in query.iter() {
-    //     generate_clusters_for_band(band, &mut commands, &asset_server);
-    // }
-}
+// fn generate_clusters(
+//     query: Query<&Band, Added<Band>>,
+//     mut commands: Commands,
+//     asset_server: Res<AssetServer>,
+// ) {
+//     // for band in query.iter() {
+//     //     generate_clusters_for_band(band, &mut commands, &asset_server);
+//     // }
+// }
 
 fn generate_clusters_for_band(
     band: &Band,
@@ -176,5 +177,5 @@ fn add_star(commands: &mut Commands, asset_server: &Res<AssetServer>, star: NewS
             )),
             ..Default::default()
         })
-        .insert(Star {});
+        .insert(Star { size: star.size });
 }

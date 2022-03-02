@@ -3,7 +3,9 @@ use bevy_prototype_lyon::plugin::ShapePlugin;
 
 use camera::CameraPlugin;
 use debug::DebugPlugin;
+use game_ui::GameUiPlugin;
 use players::PlayerPlugin;
+use ship::ShipPlugin;
 use star_generation::StarGenerationPlugin;
 
 macro_rules! ok_or_return {
@@ -26,7 +28,9 @@ macro_rules! some_or_return {
 
 mod camera;
 mod debug;
+mod game_ui;
 mod players;
+mod ship;
 mod star_generation;
 mod top_down_camera;
 
@@ -39,22 +43,14 @@ fn main() {
         .add_plugin(ShapePlugin)
         .add_plugin(CameraPlugin)
         .add_plugin(PlayerPlugin)
-        .insert_resource(Msaa { samples: 4 })
-        .add_startup_system(setup);
+        .add_plugin(GameUiPlugin)
+        .add_plugin(ShipPlugin)
+        .insert_resource(Msaa { samples: 4 });
 
     #[cfg(target_arch = "wasm32")]
     {
-        app.add_system(bevy_web_resizer::web_resize_system);
+        // app.add_system(bevy_web_resizer::web_resize_system);
     }
 
     app.run();
-}
-
-fn setup(
-    mut commands: Commands,
-    // asset_server: Res<AssetServer>,
-    // mut events: EventWriter<MakeCluster>,
-) {
-    // commands
-    //     .spawn_bundle(OrthographicCameraBundle::new_2d().insert(camera::TopDownCamera::default()));
 }

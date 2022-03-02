@@ -106,14 +106,14 @@ fn key_control(
     }
 }
 
-pub fn screen_to_world(camera_transform: &Transform, cursor_pos: Vec2, screen_size: Vec2) -> Vec2 {
-    let left_x = camera_transform.translation.x;
-    let left_y = camera_transform.translation.y;
+// pub fn screen_to_world(camera_transform: &Transform, cursor_pos: Vec2, screen_size: Vec2) -> Vec2 {
+//     let left_x = camera_transform.translation.x;
+//     let left_y = camera_transform.translation.y;
 
-    let scaled_screen_x =
-        screen_size.x * camera_transform.scale.x * (cursor_pos.x / screen_size.x - 0.5);
-    let scaled_screen_y =
-        screen_size.y * camera_transform.scale.y * (cursor_pos.y / screen_size.y - 0.5);
+//     let scaled_screen_x =
+//         screen_size.x * camera_transform.scale.x * (cursor_pos.x / screen_size.x - 0.5);
+//     let scaled_screen_y =
+//         screen_size.y * camera_transform.scale.y * (cursor_pos.y / screen_size.y - 0.5);
 
-    Vec2::new(left_x + scaled_screen_x, left_y + scaled_screen_y)
-}
+//     Vec2::new(left_x + scaled_screen_x, left_y + scaled_screen_y)
+// }
