@@ -38,7 +38,7 @@ pub struct StarGenerationPlugin;
 
 impl Plugin for StarGenerationPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(generate_bands.label("star-generation"));
+        app.add_startup_system(generate_bands);
     }
 }
 

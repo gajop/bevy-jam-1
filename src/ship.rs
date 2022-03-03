@@ -93,20 +93,20 @@ fn generate_new_ships_at_owned_stars(
 }
 
 fn generate_icon_for_fly_to_ships(
-    query: Query<(Entity, &Fleet, &FlyTo), (Added<FlyTo>)>,
+    query: Query<(Entity, &Fleet, &FlyTo), Added<FlyTo>>,
     q_origin: Query<&Transform>,
-    player_query: Query<&Player>,
+    q_player: Query<&Player>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
     for (entity, fleet, fly_to) in query.iter() {
-        let player = find_player_by_id(fleet.player_id, &player_query);
+        let player = find_player_by_id(fleet.player_id, &q_player);
         if player.is_none() {
             continue;
         }
         let player = player.unwrap();
 
-        let mut transform = q_origin.get(fly_to.origin_star).unwrap().clone();
+        let mut transform = *q_origin.get(fly_to.origin_star).unwrap();
         transform.scale = Vec3::new(0.1, 0.1, 0.1);
 
         commands.entity(entity).insert_bundle(SpriteBundle {
@@ -181,11 +181,11 @@ fn fight(
 }
 
 fn change_fleet_ownership(
-    mut query: Query<(&mut Sprite, &Fleet), (Changed<Fleet>)>,
-    player_query: Query<&Player>,
+    mut query: Query<(&mut Sprite, &Fleet), Changed<Fleet>>,
+    q_player: Query<&Player>,
 ) {
     for (mut sprite, fleet) in query.iter_mut() {
-        let player = find_player_by_id(fleet.player_id, &player_query);
+        let player = find_player_by_id(fleet.player_id, &q_player);
         if player.is_none() {
             continue;
         }

@@ -26,7 +26,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(GeneratedPlayers { generated: false })
-            .add_system(generate_players.after("star-generation"));
+            .add_system(generate_players);
     }
 }
 
@@ -65,7 +65,7 @@ fn generate_players(
 
     assign_random_star_to_player(0, &star_query, &mut commands);
 
-    for i in 0..50 {
+    for i in 0..5 {
         let player_id = 1 + i;
         commands.spawn().insert(Player {
             name: format!("AI: {i}"),

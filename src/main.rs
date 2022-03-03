@@ -1,3 +1,5 @@
+#![allow(clippy::type_complexity)]
+
 use ai::AiPlugin;
 use bevy::prelude::*;
 use bevy_prototype_lyon::plugin::ShapePlugin;
