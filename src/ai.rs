@@ -75,7 +75,7 @@ fn send_fleet(
                     origin_star: first_entity,
                     destination_star: selected_enemy,
                 });
-            info!("Send fleet size: {send_fleet_size} {closest_distance}");
+            // info!("Send fleet size: {send_fleet_size} {closest_distance}");
         }
     }
 }

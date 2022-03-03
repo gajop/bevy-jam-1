@@ -72,9 +72,10 @@ fn generate_new_ships_at_owned_stars(
         let fleet = commands
             .spawn_bundle(SpriteBundle {
                 texture: asset_server.load("ship_L.png"),
-                transform: Transform::from_xyz(50.0, 50.0, 0.0),
+                transform: Transform::from_xyz(10.0, 10.0, 0.0),
                 sprite: Sprite {
                     color: player.color,
+                    custom_size: Some(Vec2::new(10.0, 10.0)),
                     ..Default::default()
                 },
                 ..Default::default()
@@ -106,13 +107,13 @@ fn generate_icon_for_fly_to_ships(
         }
         let player = player.unwrap();
 
-        let mut transform = *q_origin.get(fly_to.origin_star).unwrap();
-        transform.scale = Vec3::new(0.1, 0.1, 0.1);
+        let transform = *q_origin.get(fly_to.origin_star).unwrap();
 
         commands.entity(entity).insert_bundle(SpriteBundle {
             texture: asset_server.load("ship_L.png"),
             sprite: Sprite {
                 color: player.color,
+                custom_size: Some(Vec2::new(10.0, 10.0)),
                 ..Default::default()
             },
             transform,

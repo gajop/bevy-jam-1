@@ -36,7 +36,7 @@ fn player_assigned_star(
     let font = asset_server.load("fonts/FiraSans-Bold.ttf");
     let text_style = TextStyle {
         font,
-        font_size: 60.0,
+        font_size: 40.0,
         color: Color::WHITE,
     };
 
@@ -56,7 +56,8 @@ fn player_assigned_star(
                     text_style.clone(),
                     text_alignment,
                 ),
-                transform: Transform::from_xyz(0.0, -55.0, 0.0),
+                transform: Transform::from_xyz(0.0, -15.0, 0.0)
+                    .with_scale(Vec3::new(0.2, 0.2, 0.2)),
                 ..Default::default()
             })
             .insert(PlayerStarText)
@@ -104,7 +105,7 @@ fn star_resource_label(
     let font = asset_server.load("fonts/FiraSans-Bold.ttf");
     let text_style = TextStyle {
         font,
-        font_size: 60.0,
+        font_size: 40.0,
         color: Color::WHITE,
     };
 
@@ -124,7 +125,7 @@ fn star_resource_label(
                     ],
                     alignment: text_alignment,
                 },
-                transform: Transform::from_xyz(0.0, 55.0, 0.0),
+                transform: Transform::from_xyz(0.0, 15.0, 0.0).with_scale(Vec3::new(0.2, 0.2, 0.2)),
                 ..Default::default()
             })
             .insert(StarText)

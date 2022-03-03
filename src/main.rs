@@ -5,6 +5,7 @@ use bevy::prelude::*;
 use bevy_prototype_lyon::plugin::ShapePlugin;
 
 use camera::CameraPlugin;
+use control::ControlPlugin;
 use debug::DebugPlugin;
 use game_ui::GameUiPlugin;
 use players::PlayerPlugin;
@@ -31,6 +32,7 @@ macro_rules! some_or_return {
 
 mod ai;
 mod camera;
+mod control;
 mod debug;
 mod game_ui;
 mod players;
@@ -44,6 +46,7 @@ fn main() {
     app.add_plugins(DefaultPlugins)
         .add_plugin(AiPlugin)
         .add_plugin(CameraPlugin)
+        .add_plugin(ControlPlugin)
         .add_plugin(DebugPlugin)
         .add_plugin(GameUiPlugin)
         .add_plugin(PlayerPlugin)
