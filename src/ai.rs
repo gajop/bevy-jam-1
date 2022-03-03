@@ -24,10 +24,20 @@ fn send_fleet(
     q_attached_fleet: Query<(Entity, &AttachedFleet, &Transform)>,
     q_enemy_stars: Query<(Entity, Option<&OwnedBy>, &Transform), With<Star>>,
     mut q_fleet: Query<&mut Fleet>,
+    q_player: Query<&Player>,
     mut commands: Commands,
 ) {
     for (first_entity, attached_fleet, transform) in q_attached_fleet.iter() {
         let mut fleet = q_fleet.get_mut(attached_fleet.fleet_id).unwrap();
+
+        let player = find_player_by_id(fleet.player_id, &q_player);
+        if player.is_none() {
+            continue;
+        }
+        let player = player.unwrap();
+        if player.is_human {
+            continue;
+        }
 
         let mut closest_distance = f32::MAX;
         let mut selected_enemy = None;
@@ -67,13 +77,5 @@ fn send_fleet(
                 });
             info!("Send fleet size: {send_fleet_size} {closest_distance}");
         }
-
-        // for &child in children.iter() {
-        //     let text = q_star_text.get_mut(child);
-        //     if let Ok(mut text) = text {
-        //         text.sections[1].value = format!("  F: {:.2}", fleet.size);
-        //     }
-        // }
-        // let star_text = q_star_text.get_mut(entity);
     }
 }
