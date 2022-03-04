@@ -5,6 +5,8 @@ use bevy_prototype_lyon::prelude::*;
 use rand::Rng;
 use rand_distr::{Distribution, Normal};
 
+use crate::selection::Selectable;
+
 const BAND_SIZE_MIN: f32 = 170.0;
 const BAND_SIZE_MAX: f32 = 200.0;
 const BAND_Z_INDEX_START: f32 = -10.0;
@@ -90,7 +92,8 @@ fn generate_bands(mut commands: Commands, asset_server: Res<AssetServer>) {
                     red: rand::thread_rng().gen_range(0.0..=1.0),
                     green: rand::thread_rng().gen_range(0.0..=1.0),
                     blue: rand::thread_rng().gen_range(0.0..=1.0),
-                    alpha: 1.0,
+                    // alpha: 1.0,
+                    alpha: 0.0,
                 })),
                 Transform::from_xyz(0.0, 0.0, BAND_Z_INDEX_START - (index as f32) * 2.0),
             ))
@@ -110,7 +113,8 @@ fn generate_bands(mut commands: Commands, asset_server: Res<AssetServer>) {
                 red: 0.0,
                 green: 0.0,
                 blue: 0.0,
-                alpha: 1.0,
+                // alpha: 1.0,
+                alpha: 0.0,
             })),
             Transform::from_xyz(0.0, 0.0, BAND_Z_INDEX_START - (index as f32) * 2.0 - 1.0),
         ));
@@ -167,15 +171,20 @@ fn generate_clusters_for_band(
 }
 
 fn add_star(commands: &mut Commands, asset_server: &Res<AssetServer>, star: NewStar) {
+    let size = Vec2::new(10.0 * star.size.sqrt(), 10.0 * star.size.sqrt());
     commands
         .spawn_bundle(SpriteBundle {
             texture: asset_server.load("star_large.png"),
             transform: Transform::from_xyz(star.x, star.y, 0.0),
             sprite: Sprite {
-                custom_size: Some(Vec2::new(10.0 * star.size.sqrt(), 10.0 * star.size.sqrt())),
+                custom_size: Some(size),
                 ..Default::default()
             },
             ..Default::default()
         })
-        .insert(Star { size: star.size });
+        .insert(Star { size: star.size })
+        .insert(Selectable {
+            width: size.x,
+            height: size.y,
+        });
 }

@@ -71,7 +71,7 @@ fn generate_new_ships_at_owned_stars(
 
         let fleet = commands
             .spawn_bundle(SpriteBundle {
-                texture: asset_server.load("ship_L.png"),
+                texture: asset_server.load("enemy_E.png"),
                 transform: Transform::from_xyz(10.0, 10.0, 0.0),
                 sprite: Sprite {
                     color: player.color,
@@ -110,7 +110,7 @@ fn generate_icon_for_fly_to_ships(
         let transform = *q_origin.get(fly_to.origin_star).unwrap();
 
         commands.entity(entity).insert_bundle(SpriteBundle {
-            texture: asset_server.load("ship_L.png"),
+            texture: asset_server.load("enemy_E.png"),
             sprite: Sprite {
                 color: player.color,
                 custom_size: Some(Vec2::new(10.0, 10.0)),
@@ -128,10 +128,17 @@ fn fly_to(
 ) {
     for (fly_to, mut transform) in q_fly_to.iter_mut() {
         let destination_transform = q_destination.get(fly_to.destination_star).unwrap();
-        let delta = (transform.translation - destination_transform.translation).normalize()
+        let delta = (destination_transform.translation - transform.translation).normalize()
             * (FLY_TO_TIME_STEP as f32)
             * 100.0;
-        transform.translation -= delta;
+        transform.translation += delta;
+
+        // TODO: figure out proper rotation later
+
+        // let target = destination_transform.translation.truncate();
+        // let pos = Vec2::new(transform.translation.x, transform.translation.y);
+        // let angle = (target - pos).angle_between(pos);
+        // transform.rotation = Quat::from_rotation_z(angle);
     }
 }
 

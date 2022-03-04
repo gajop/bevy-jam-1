@@ -51,6 +51,22 @@ fn generate_players(
 
     // }
 
+    for i in 0..10 {
+        let player_id = 1 + i;
+        commands.spawn().insert(Player {
+            name: format!("AI: {}", i + 1),
+            is_human: false,
+            id: player_id,
+            color: Color::Rgba {
+                red: rand::thread_rng().gen_range(0.0..=1.0),
+                green: rand::thread_rng().gen_range(0.0..=1.0),
+                blue: rand::thread_rng().gen_range(0.0..=1.0),
+                alpha: 1.0,
+            },
+        });
+        assign_random_star_to_player(player_id, &star_query, &mut commands);
+    }
+
     commands.spawn().insert(Player {
         name: "You".to_string(),
         is_human: true,
@@ -64,22 +80,6 @@ fn generate_players(
     });
 
     assign_random_star_to_player(0, &star_query, &mut commands);
-
-    for i in 0..5 {
-        let player_id = 1 + i;
-        commands.spawn().insert(Player {
-            name: format!("AI: {i}"),
-            is_human: false,
-            id: player_id,
-            color: Color::Rgba {
-                red: rand::thread_rng().gen_range(0.0..=1.0),
-                green: rand::thread_rng().gen_range(0.0..=1.0),
-                blue: rand::thread_rng().gen_range(0.0..=1.0),
-                alpha: 1.0,
-            },
-        });
-        assign_random_star_to_player(player_id, &star_query, &mut commands);
-    }
 }
 
 fn assign_random_star_to_player(
