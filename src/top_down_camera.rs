@@ -46,8 +46,8 @@ fn mouse_control(
 
     let delta_zoom = 1.0 + zoom_sensitivity;
 
-    let rel_x = cursor_position.x / (window.physical_width() as f32);
-    let rel_y = cursor_position.y / (window.physical_height() as f32);
+    let rel_x = cursor_position.x / (window.width() as f32);
+    let rel_y = cursor_position.y / (window.height() as f32);
 
     for ev in scroll_evr.iter() {
         match ev.unit {

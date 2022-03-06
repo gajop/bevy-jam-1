@@ -68,10 +68,7 @@ fn mouse_button_input(
         let world_pos = screen_to_world(
             &transform,
             cursor_position,
-            Vec2::new(
-                window.physical_width() as f32,
-                window.physical_height() as f32,
-            ),
+            Vec2::new(window.width() as f32, window.height() as f32),
         );
 
         selection_rect.first_x = Some(world_pos.x);
@@ -92,10 +89,7 @@ fn mouse_button_input(
         let world_pos = screen_to_world(
             &transform,
             cursor_position,
-            Vec2::new(
-                window.physical_width() as f32,
-                window.physical_height() as f32,
-            ),
+            Vec2::new(window.width() as f32, window.height() as f32),
         );
 
         let (x1, x2) = (some_or_return!(selection_rect.first_x), world_pos.x);
@@ -135,10 +129,7 @@ fn mouse_button_input(
         let world_pos = screen_to_world(
             &transform,
             cursor_position,
-            Vec2::new(
-                window.physical_width() as f32,
-                window.physical_height() as f32,
-            ),
+            Vec2::new(window.width() as f32, window.height() as f32),
         );
 
         selection_rect.second_x = Some(world_pos.x);
