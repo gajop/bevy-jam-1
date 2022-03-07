@@ -1,7 +1,7 @@
 use bevy::prelude::*;
 
 use crate::{
-    players::{find_player_by_id, OwnedBy, Player},
+    players::{OwnedBy, Player},
     top_down_camera::{TopDownCamera, TopDownCameraPlugin},
 };
 
@@ -40,11 +40,7 @@ fn zoom_camera_to_player(
         return;
     }
     for (player_transform, owned_by) in q_player_star_added.iter() {
-        let player = find_player_by_id(owned_by.player_id, &q_player);
-        if player.is_none() {
-            return;
-        }
-        let player = player.unwrap();
+        let player = ok_or_continue!(q_player.get(owned_by.player));
         if !player.is_human {
             continue;
         }

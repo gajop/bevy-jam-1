@@ -1,7 +1,7 @@
 use bevy::{core::FixedTimestep, prelude::*};
 
 use crate::{
-    players::{find_player_by_id, OwnedBy, Player},
+    players::{OwnedBy, Player},
     star_generation::Star,
 };
 
@@ -12,7 +12,7 @@ pub struct ShipPlugin;
 
 #[derive(Component)]
 pub struct Fleet {
-    pub player_id: usize,
+    pub player: Entity,
     pub size: f32,
 }
 
@@ -63,11 +63,7 @@ fn generate_new_ships_at_owned_stars(
     asset_server: Res<AssetServer>,
 ) {
     for (entity, owned_by) in query.iter_mut() {
-        let player = find_player_by_id(owned_by.player_id, &player_query);
-        if player.is_none() {
-            continue;
-        }
-        let player = player.unwrap();
+        let player = ok_or_continue!(player_query.get(owned_by.player));
 
         let fleet = commands
             .spawn_bundle(SpriteBundle {
@@ -81,7 +77,7 @@ fn generate_new_ships_at_owned_stars(
                 ..Default::default()
             })
             .insert(Fleet {
-                player_id: owned_by.player_id,
+                player: owned_by.player,
                 size: 0.0,
             })
             .id();
@@ -101,11 +97,7 @@ fn generate_icon_for_fly_to_ships(
     asset_server: Res<AssetServer>,
 ) {
     for (entity, fleet, fly_to) in query.iter() {
-        let player = find_player_by_id(fleet.player_id, &q_player);
-        if player.is_none() {
-            continue;
-        }
-        let player = player.unwrap();
+        let player = ok_or_continue!(q_player.get(fleet.player));
 
         let transform = *q_origin.get(fly_to.origin_star).unwrap();
 
@@ -167,19 +159,19 @@ fn fight(
                 let mut target_fleet = q_destination_fleet
                     .get_mut(attached_fleet.fleet_id)
                     .unwrap();
-                if target_fleet.player_id != fleet.player_id {
+                if target_fleet.player != fleet.player {
                     target_fleet.size -= fleet.size;
                 } else {
                     target_fleet.size += fleet.size;
                 }
                 if target_fleet.size < 0.0 {
-                    owned_by.unwrap().player_id = fleet.player_id;
-                    target_fleet.player_id = fleet.player_id;
+                    owned_by.unwrap().player = fleet.player;
+                    target_fleet.player = fleet.player;
                     target_fleet.size *= -1.0;
                 };
             } else {
                 commands.entity(fly_to.destination_star).insert(OwnedBy {
-                    player_id: fleet.player_id,
+                    player: fleet.player,
                 });
             };
 
@@ -193,11 +185,7 @@ fn change_fleet_ownership(
     q_player: Query<&Player>,
 ) {
     for (mut sprite, fleet) in query.iter_mut() {
-        let player = find_player_by_id(fleet.player_id, &q_player);
-        if player.is_none() {
-            continue;
-        }
-        let player = player.unwrap();
+        let player = ok_or_continue!(q_player.get(fleet.player));
 
         sprite.color = player.color;
     }

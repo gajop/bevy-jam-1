@@ -1,7 +1,7 @@
 use bevy::{core::FixedTimestep, prelude::*};
 
 use crate::{
-    players::{find_player_by_id, OwnedBy, Player},
+    players::{OwnedBy, Player},
     ship::{AttachedFleet, Fleet, FlyTo},
     star_generation::Star,
 };
@@ -30,11 +30,7 @@ fn send_fleet(
     for (first_entity, attached_fleet, transform) in q_attached_fleet.iter() {
         let mut fleet = q_fleet.get_mut(attached_fleet.fleet_id).unwrap();
 
-        let player = find_player_by_id(fleet.player_id, &q_player);
-        if player.is_none() {
-            continue;
-        }
-        let player = player.unwrap();
+        let player = ok_or_continue!(q_player.get(fleet.player));
         if player.is_human {
             continue;
         }
@@ -47,7 +43,7 @@ fn send_fleet(
                 continue;
             }
             if let Some(other_star) = other_star {
-                if fleet.player_id == other_star.player_id {
+                if fleet.player == other_star.player {
                     continue;
                 }
             }
@@ -68,7 +64,7 @@ fn send_fleet(
             commands
                 .spawn()
                 .insert(Fleet {
-                    player_id: fleet.player_id,
+                    player: fleet.player,
                     size: send_fleet_size,
                 })
                 .insert(FlyTo {

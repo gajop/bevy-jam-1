@@ -3,7 +3,7 @@ use bevy::prelude::*;
 use bevy_prototype_lyon::prelude::*;
 
 use crate::{
-    players::{find_player_by_id, OwnedBy, Player},
+    players::{OwnedBy, Player},
     selection::*,
 };
 
@@ -40,7 +40,7 @@ fn mark_selected_with_rectangle(
         for &entity in event.entities.iter() {
             let owner = ok_or_continue!(q_owner.get(entity));
 
-            let player = some_or_continue!(find_player_by_id(owner.player_id, &q_player));
+            let player = ok_or_continue!(q_player.get(owner.player));
             if !player.is_human {
                 continue;
             }

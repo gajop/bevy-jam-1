@@ -1,11 +1,10 @@
 use bevy::prelude::*;
 
 use crate::{
-    players::{find_player_by_id, OwnedBy, Player},
-    selection::{OnSelected, Selectable},
+    players::{OwnedBy, Player},
+    selection::OnSelected,
     selection_ui::Selected,
     ship::{AttachedFleet, Fleet, FlyTo},
-    star_generation::Star,
     top_down_camera::{screen_to_world, TopDownCamera},
 };
 
@@ -108,11 +107,7 @@ fn mouse_send(
         let selected_star = selected.star.unwrap();
         let mut fleet = q_fleet.get_mut(selected_fleet).unwrap();
         for (entity, sprite, transform) in q_stars.iter() {
-            let player = find_player_by_id(fleet.player_id, &q_player);
-            if player.is_none() {
-                continue;
-            }
-            let player = player.unwrap();
+            let player = ok_or_continue!(q_player.get(fleet.player));
             if !player.is_human {
                 continue;
             }
@@ -124,7 +119,7 @@ fn mouse_send(
                 commands
                     .spawn()
                     .insert(Fleet {
-                        player_id: fleet.player_id,
+                        player: fleet.player,
                         size: send_fleet_size,
                     })
                     .insert(FlyTo {
@@ -175,7 +170,7 @@ fn attack_selection(
                 let owned_by = owned_by?;
                 let attached_fleet = attached_fleet?;
 
-                let player = find_player_by_id(owned_by.player_id, &q_player)?;
+                let player = q_player.get(owned_by.player).ok()?;
                 if !player.is_human {
                     return None;
                 }
@@ -191,7 +186,7 @@ fn attack_selection(
             let (owned_by, _, star) = q_attached_fleet.get(target_entity).ok()?;
             let owned_by = some_or_return!(owned_by, Some(star));
 
-            let player = find_player_by_id(owned_by.player_id, &q_player)?;
+            let player = q_player.get(owned_by.player).ok()?;
             if player.is_human {
                 return None;
             }
@@ -213,7 +208,7 @@ fn attack_selection(
             commands
                 .spawn()
                 .insert(Fleet {
-                    player_id: my_fleet.player_id,
+                    player: my_fleet.player,
                     size: send_fleet_size,
                 })
                 .insert(FlyTo {

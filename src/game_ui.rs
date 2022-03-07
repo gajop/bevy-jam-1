@@ -7,7 +7,7 @@ use bevy_prototype_lyon::{
 };
 
 use crate::{
-    players::{find_player_by_id, OwnedBy, Player},
+    players::{OwnedBy, Player},
     ship::{AttachedFleet, Fleet},
     star_generation::Star,
 };
@@ -28,7 +28,7 @@ pub struct PlayerScoreHolder;
 
 #[derive(Component)]
 pub struct PlayerScore {
-    id: usize,
+    player: Entity,
 }
 
 #[derive(Component)]
@@ -69,11 +69,7 @@ fn player_assigned_star(
     };
 
     for (entity, mut sprite, owned_by) in query.iter_mut() {
-        let player = find_player_by_id(owned_by.player_id, &player_query);
-        if player.is_none() {
-            continue;
-        }
-        let player = player.unwrap();
+        let player = ok_or_continue!(player_query.get(owned_by.player));
 
         sprite.color = player.color;
 
@@ -113,11 +109,7 @@ fn star_assignment_changed(
     player_query: Query<&Player>,
 ) {
     for (mut sprite, owned_by, children) in query_star.iter_mut() {
-        let player = find_player_by_id(owned_by.player_id, &player_query);
-        if player.is_none() {
-            continue;
-        }
-        let player = player.unwrap();
+        let player = ok_or_continue!(player_query.get(owned_by.player));
 
         sprite.color = player.color;
 
@@ -244,13 +236,13 @@ fn setup_player_score_ui(mut commands: Commands, asset_server: Res<AssetServer>)
 }
 
 fn add_player_score(
-    q_player_add: Query<&Player, Added<Player>>,
+    q_player_add: Query<(&Player, Entity), Added<Player>>,
     q_holder: Query<Entity, With<PlayerScoreHolder>>,
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
     let holder = ok_or_return!(q_holder.get_single());
-    for player in q_player_add.iter() {
+    for (player, player_entity) in q_player_add.iter() {
         let player_score = commands
             .spawn_bundle(TextBundle {
                 style: Style {
@@ -280,7 +272,9 @@ fn add_player_score(
                 ),
                 ..Default::default()
             })
-            .insert(PlayerScore { id: player.id })
+            .insert(PlayerScore {
+                player: player_entity,
+            })
             .id();
 
         commands.entity(holder).add_child(player_score);
@@ -296,21 +290,29 @@ fn update_player_score(
     let mut score_map = HashMap::new();
     let mut total_stars = 0;
     for owned_by in q_owned_star.iter() {
-        *score_map.entry(owned_by.player_id).or_insert(0) += 1;
+        *score_map.entry(owned_by.player).or_insert(0) += 1;
         total_stars += 1;
     }
 
     for (mut text, player_score) in q_player_score.iter_mut() {
-        let player = some_or_continue!(find_player_by_id(player_score.id, &q_player));
+        let player = ok_or_continue!(q_player.get(player_score.player));
         text.sections[0].value = format!(
             "{}:   {:?} stars",
             player.name,
-            score_map.get(&player_score.id).unwrap_or(&0)
+            score_map.get(&player_score.player).unwrap_or(&0)
         );
     }
 
-    let human_id = 0;
-    let &our_score = score_map.get(&human_id).unwrap_or(&0);
+    let mut human = None;
+    for (_, player_score) in q_player_score.iter() {
+        let player = ok_or_continue!(q_player.get(player_score.player));
+        if player.is_human {
+            human = Some(player_score.player);
+            break;
+        }
+    }
+
+    let &our_score = score_map.get(&some_or_return!(human)).unwrap_or(&0);
     let mut result_text = ok_or_return!(q_result_text.get_single_mut());
     result_text.sections[0].value = if our_score == 0 {
         "Defeat!\nRefresh to play again".to_string()
