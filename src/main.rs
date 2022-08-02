@@ -14,48 +14,6 @@ use selection_ui::SelectionUIPlugin;
 use ship::ShipPlugin;
 use star_generation::StarGenerationPlugin;
 
-macro_rules! ok_or_return {
-    ( $e:expr ) => {
-        match $e {
-            Ok(x) => x,
-            Err(_) => return,
-        }
-    };
-}
-
-macro_rules! ok_or_continue {
-    ( $e:expr ) => {
-        match $e {
-            Ok(x) => x,
-            Err(_) => continue,
-        }
-    };
-}
-
-macro_rules! some_or_return {
-    ( $e:expr ) => {
-        match $e {
-            Some(x) => x,
-            None => return,
-        }
-    };
-    ( $e:expr, $return_value:expr ) => {
-        match $e {
-            Some(x) => x,
-            None => return $return_value,
-        }
-    };
-}
-
-macro_rules! some_or_continue {
-    ( $e:expr ) => {
-        match $e {
-            Some(x) => x,
-            None => continue,
-        }
-    };
-}
-
 mod ai;
 mod camera;
 mod control;
