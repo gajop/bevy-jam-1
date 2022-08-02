@@ -242,14 +242,14 @@ fn add_player_score(
     asset_server: Res<AssetServer>,
 ) {
     let holder = ok_or_return!(q_holder.get_single());
-    for (player, player_entity) in q_player_add.iter() {
+    for (i, (player, player_entity)) in q_player_add.iter().enumerate() {
         let player_score = commands
             .spawn_bundle(TextBundle {
                 style: Style {
                     align_self: AlignSelf::FlexEnd,
                     position_type: PositionType::Absolute,
                     position: Rect {
-                        top: Val::Px(22.0 * ((player.id + 1) as f32)),
+                        top: Val::Px(22.0 * ((i + 1) as f32)),
                         right: Val::Px(15.0),
                         ..Default::default()
                     },

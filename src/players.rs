@@ -8,7 +8,6 @@ use crate::star_generation::Star;
 pub struct Player {
     pub name: String,
     pub is_human: bool,
-    pub id: usize,
     pub color: Color,
 }
 
@@ -52,13 +51,11 @@ fn generate_players(
     // }
 
     for i in 0..10 {
-        let player_id = 1 + i;
         let player = commands
             .spawn()
             .insert(Player {
                 name: format!("AI: {}", i + 1),
                 is_human: false,
-                id: player_id,
                 color: Color::Rgba {
                     red: rand::thread_rng().gen_range(0.0..=1.0),
                     green: rand::thread_rng().gen_range(0.0..=1.0),
@@ -75,7 +72,6 @@ fn generate_players(
         .insert(Player {
             name: "You".to_string(),
             is_human: true,
-            id: 0,
             color: Color::Rgba {
                 red: rand::thread_rng().gen_range(0.0..=1.0),
                 green: rand::thread_rng().gen_range(0.0..=1.0),
