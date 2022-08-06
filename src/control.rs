@@ -136,17 +136,13 @@ fn mouse_send(
 
 fn in_sprite(world_pos: Vec2, sprite: &Sprite, transform: &GlobalTransform) -> bool {
     let size = sprite.custom_size.unwrap();
-    let rect = Rect {
-        left: transform.translation.x - size.x / 2.0,
-        right: transform.translation.x + size.x / 2.0,
-        bottom: transform.translation.y - size.y / 2.0,
-        top: transform.translation.y + size.y / 2.0,
-    };
+    let translation = transform.translation();
+    let left = translation.x - size.x / 2.0;
+    let right = translation.x + size.x / 2.0;
+    let bottom = translation.y - size.y / 2.0;
+    let top = translation.y + size.y / 2.0;
 
-    world_pos.x >= rect.left
-        && world_pos.x < rect.right
-        && world_pos.y >= rect.bottom
-        && world_pos.y < rect.top
+    world_pos.x >= left && world_pos.x < right && world_pos.y >= bottom && world_pos.y < top
 }
 
 fn attack_selection(
@@ -166,8 +162,9 @@ fn attack_selection(
 
         let my_fleets_stars: Vec<_> = q_selected
             .iter()
-            .filter_map(|&my_entity| {
-                let (owned_by, attached_fleet, entity) = q_attached_fleet.get(my_entity.0).ok()?;
+            .filter_map(|my_entity| {
+                let (owned_by, attached_fleet, entity) =
+                    q_attached_fleet.get(my_entity.get()).ok()?;
                 let owned_by = owned_by?;
                 let attached_fleet = attached_fleet?;
 

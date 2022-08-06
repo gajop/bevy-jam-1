@@ -32,7 +32,7 @@ fn main() {
         .add_plugin(AiPlugin)
         .add_plugin(CameraPlugin)
         .add_plugin(ControlPlugin)
-        // .add_plugin(DebugPlugin)
+        .add_plugin(DebugPlugin)
         .add_plugin(GameUiPlugin)
         .add_plugin(PlayerPlugin)
         .add_plugin(ShapePlugin)

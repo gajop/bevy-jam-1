@@ -76,11 +76,8 @@ fn player_assigned_star(
 
         let label = commands
             .spawn_bundle(Text2dBundle {
-                text: Text::with_section(
-                    player.name.to_string(),
-                    text_style.clone(),
-                    text_alignment,
-                ),
+                text: Text::from_section(player.name.to_string(), text_style.clone())
+                    .with_alignment(text_alignment),
                 transform: Transform::from_xyz(0.0, -15.0, 0.0)
                     .with_scale(Vec3::new(0.2, 0.2, 0.2)),
                 ..Default::default()
@@ -193,7 +190,6 @@ fn update_star_text(
 }
 
 fn setup_player_score_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
-    commands.spawn_bundle(UiCameraBundle::default());
     // PlayerScoreHolder
     commands
         .spawn_bundle(NodeBundle {
@@ -217,7 +213,7 @@ fn setup_player_score_ui(mut commands: Commands, asset_server: Res<AssetServer>)
                 ..Default::default()
             },
             // Use the `Text::with_section` constructor
-            text: Text::with_section(
+            text: Text::from_section(
                 // Accepts a `String` or any type that converts into a `String`, such as `&str`
                 "".to_string(),
                 TextStyle {
@@ -226,11 +222,11 @@ fn setup_player_score_ui(mut commands: Commands, asset_server: Res<AssetServer>)
                     color: Color::WHITE,
                 },
                 // Note: You can use `Default::default()` in place of the `TextAlignment`
-                TextAlignment {
-                    horizontal: HorizontalAlign::Center,
-                    vertical: VerticalAlign::Center,
-                },
-            ),
+            )
+            .with_alignment(TextAlignment {
+                horizontal: HorizontalAlign::Center,
+                vertical: VerticalAlign::Center,
+            }),
             ..Default::default()
         })
         .insert(ResultText);
@@ -249,7 +245,7 @@ fn add_player_score(
                 style: Style {
                     align_self: AlignSelf::FlexEnd,
                     position_type: PositionType::Absolute,
-                    position: Rect {
+                    position: UiRect {
                         top: Val::Px(22.0 * ((i + 1) as f32)),
                         right: Val::Px(15.0),
                         ..Default::default()
@@ -257,7 +253,7 @@ fn add_player_score(
                     ..Default::default()
                 },
                 // Use the `Text::with_section` constructor
-                text: Text::with_section(
+                text: Text::from_section(
                     // Accepts a `String` or any type that converts into a `String`, such as `&str`
                     format!("{}:   1 stars", player.name),
                     TextStyle {
@@ -266,11 +262,11 @@ fn add_player_score(
                         color: player.color,
                     },
                     // Note: You can use `Default::default()` in place of the `TextAlignment`
-                    TextAlignment {
-                        horizontal: HorizontalAlign::Center,
-                        ..Default::default()
-                    },
-                ),
+                )
+                .with_alignment(TextAlignment {
+                    horizontal: HorizontalAlign::Center,
+                    ..Default::default()
+                }),
                 ..Default::default()
             })
             .insert(PlayerScore {

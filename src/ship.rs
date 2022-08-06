@@ -1,4 +1,4 @@
-use bevy::{core::FixedTimestep, prelude::*};
+use bevy::{prelude::*, time::FixedTimestep};
 use ctrl_macros::ok_or_continue;
 
 use crate::{
