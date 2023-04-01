@@ -1,30 +1,30 @@
 use bevy::prelude::*;
-use ctrl_macros::{ok_or_continue, ok_or_return, some_or_return};
+use ctrl_macros::{ok_or_continue, some_or_return};
 
 use crate::{
     players::{OwnedBy, Player},
     selection::OnSelected,
     selection_ui::Selected,
     ship::{AttachedFleet, Fleet, FlyTo},
-    top_down_camera::{screen_to_world, TopDownCamera},
+    // top_down_camera::{screen_to_world, TopDownCamera},
 };
 
-struct SelectedSingle {
-    fleet: Option<Entity>,
-    star: Option<Entity>,
-}
+// struct SelectedSingle {
+//     fleet: Option<Entity>,
+//     star: Option<Entity>,
+// }
 
 pub struct ControlPlugin;
 
 impl Plugin for ControlPlugin {
     fn build(&self, app: &mut App) {
-        app.insert_resource(SelectedSingle {
-            fleet: None,
-            star: None,
-        })
+        // app.insert_resource(SelectedSingle {
+        //     fleet: None,
+        //     star: None,
+        // })
         // .add_system(mouse_select)
         // .add_system(mouse_send)
-        .add_system(attack_selection);
+        app.add_system(attack_selection);
     }
 }
 
@@ -80,10 +80,11 @@ fn mouse_select(
 
  */
 
+/*
 fn mouse_send(
     buttons: Res<Input<MouseButton>>,
     windows: Res<Windows>,
-    mut selected: ResMut<SelectedSingle>,
+    selected: ResMut<SelectedSingle>,
     mut query: Query<&mut Transform, With<TopDownCamera>>,
     q_stars: Query<(Entity, &Sprite, &GlobalTransform), Without<TopDownCamera>>,
     mut q_fleet: Query<&mut Fleet>,
@@ -97,7 +98,7 @@ fn mouse_send(
     let world_pos = screen_to_world(
         &transform,
         cursor_position,
-        Vec2::new(window.width() as f32, window.height() as f32),
+        Vec2::new(window.width(), window.height()),
     );
 
     if buttons.just_pressed(MouseButton::Right) {
@@ -134,6 +135,8 @@ fn mouse_send(
     }
 }
 
+
+
 fn in_sprite(world_pos: Vec2, sprite: &Sprite, transform: &GlobalTransform) -> bool {
     let size = sprite.custom_size.unwrap();
     let translation = transform.translation();
@@ -144,6 +147,8 @@ fn in_sprite(world_pos: Vec2, sprite: &Sprite, transform: &GlobalTransform) -> b
 
     world_pos.x >= left && world_pos.x < right && world_pos.y >= bottom && world_pos.y < top
 }
+
+*/
 
 fn attack_selection(
     mut ev_selected: EventReader<OnSelected>,
@@ -174,7 +179,7 @@ fn attack_selection(
                 }
 
                 // let mut fleet = q_fleet.get_mut(attached_fleet.fleet_id).ok()?;
-                let fleet = q_fleet.get_mut(attached_fleet.fleet_id).ok()?;
+                // let fleet = q_fleet.get_mut(attached_fleet.fleet_id).ok()?;
 
                 Some((attached_fleet.fleet_id, entity))
             })

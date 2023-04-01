@@ -150,7 +150,7 @@ fn fight(
     mut commands: Commands,
 ) {
     for (entity, fly_to, fleet, transform) in q_fly_to.iter() {
-        let (destination_transform, star, attached_fleet, owned_by) =
+        let (destination_transform, _, attached_fleet, owned_by) =
             q_destination.get_mut(fly_to.destination_star).unwrap();
         let distance = transform
             .translation
