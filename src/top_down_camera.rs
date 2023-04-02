@@ -1,6 +1,7 @@
 use bevy::{
     input::mouse::{MouseScrollUnit, MouseWheel},
     prelude::*,
+    window::PrimaryWindow,
 };
 use ctrl_macros::{ok_or_return, some_or_return};
 
@@ -34,9 +35,9 @@ impl Plugin for TopDownCameraPlugin {
 fn mouse_control(
     mut scroll_evr: EventReader<MouseWheel>,
     mut query: Query<(&TopDownCamera, &mut Transform)>,
-    windows: Res<Windows>,
+    q_window: Query<&Window, With<PrimaryWindow>>,
 ) {
-    let window = some_or_return!(windows.get_primary());
+    let window = ok_or_return!(q_window.get_single());
     let cursor_position = some_or_return!(window.cursor_position());
     let q = ok_or_return!(query.get_single_mut());
 

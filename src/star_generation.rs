@@ -54,15 +54,18 @@ fn generate_bands(mut commands: Commands, asset_server: Res<AssetServer>) {
         radius: band_size_total,
         ..shapes::Circle::default()
     };
-    commands.spawn_bundle(GeometryBuilder::build_as(
-        &shape,
-        DrawMode::Fill(FillMode::color(Color::Rgba {
+    commands.spawn((
+        ShapeBundle {
+            path: GeometryBuilder::build_as(&shape),
+            transform: Transform::from_xyz(0.0, 0.0, BAND_Z_INDEX_START + 1.0),
+            ..default()
+        },
+        Fill::color(Color::Rgba {
             red: 0.0,
             green: 0.0,
             blue: 0.0,
             alpha: 1.0,
-        })),
-        Transform::from_xyz(0.0, 0.0, BAND_Z_INDEX_START + 1.0),
+        }),
     ));
 
     for index in 0..5 {
@@ -86,16 +89,23 @@ fn generate_bands(mut commands: Commands, asset_server: Res<AssetServer>) {
         };
         generate_clusters_for_band(&band, &mut commands, &asset_server);
         commands
-            .spawn_bundle(GeometryBuilder::build_as(
-                &shape,
-                DrawMode::Fill(FillMode::color(Color::Rgba {
+            .spawn((
+                ShapeBundle {
+                    path: GeometryBuilder::build_as(&shape),
+                    transform: Transform::from_xyz(
+                        0.0,
+                        0.0,
+                        BAND_Z_INDEX_START - (index as f32) * 2.0,
+                    ),
+                    ..default()
+                },
+                Fill::color(Color::Rgba {
                     red: rand::thread_rng().gen_range(0.0..=1.0),
                     green: rand::thread_rng().gen_range(0.0..=1.0),
                     blue: rand::thread_rng().gen_range(0.0..=1.0),
                     // alpha: 1.0,
                     alpha: 0.0,
-                })),
-                Transform::from_xyz(0.0, 0.0, BAND_Z_INDEX_START - (index as f32) * 2.0),
+                }),
             ))
             .insert(band);
 
@@ -107,16 +117,23 @@ fn generate_bands(mut commands: Commands, asset_server: Res<AssetServer>) {
             radius: band_size_total,
             ..shapes::Circle::default()
         };
-        commands.spawn_bundle(GeometryBuilder::build_as(
-            &shape,
-            DrawMode::Fill(FillMode::color(Color::Rgba {
+        commands.spawn((
+            ShapeBundle {
+                path: GeometryBuilder::build_as(&shape),
+                transform: Transform::from_xyz(
+                    0.0,
+                    0.0,
+                    BAND_Z_INDEX_START - (index as f32) * 2.0 - 1.0,
+                ),
+                ..default()
+            },
+            Fill::color(Color::Rgba {
                 red: 0.0,
                 green: 0.0,
                 blue: 0.0,
                 // alpha: 1.0,
                 alpha: 0.0,
-            })),
-            Transform::from_xyz(0.0, 0.0, BAND_Z_INDEX_START - (index as f32) * 2.0 - 1.0),
+            }),
         ));
     }
 }
@@ -173,14 +190,14 @@ fn generate_clusters_for_band(
 fn add_star(commands: &mut Commands, asset_server: &Res<AssetServer>, star: NewStar) {
     let size = Vec2::new(10.0 * star.size.sqrt(), 10.0 * star.size.sqrt());
     commands
-        .spawn_bundle(SpriteBundle {
+        .spawn(SpriteBundle {
             texture: asset_server.load("star_large.png"),
             transform: Transform::from_xyz(star.x, star.y, 0.0),
             sprite: Sprite {
                 custom_size: Some(size),
-                ..Default::default()
+                ..default()
             },
-            ..Default::default()
+            ..default()
         })
         .insert(Star { size: star.size })
         .insert(Selectable {

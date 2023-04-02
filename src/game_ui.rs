@@ -1,10 +1,7 @@
 use std::collections::HashMap;
 
 use bevy::prelude::*;
-use bevy_prototype_lyon::{
-    prelude::{DrawMode, FillMode, GeometryBuilder},
-    shapes,
-};
+use bevy_prototype_lyon::{prelude::*, shapes};
 use ctrl_macros::{ok_or_continue, ok_or_return, some_or_return};
 
 use crate::{
@@ -53,10 +50,7 @@ fn player_assigned_star(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    let text_alignment = TextAlignment {
-        vertical: VerticalAlign::Top,
-        horizontal: HorizontalAlign::Center,
-    };
+    let text_alignment = TextAlignment::Center;
     let font = asset_server.load("fonts/FiraSans-Bold.ttf");
     let text_style = TextStyle {
         font,
@@ -75,21 +69,24 @@ fn player_assigned_star(
         sprite.color = player.color;
 
         let label = commands
-            .spawn_bundle(Text2dBundle {
+            .spawn(Text2dBundle {
                 text: Text::from_section(player.name.to_string(), text_style.clone())
                     .with_alignment(text_alignment),
                 transform: Transform::from_xyz(0.0, -15.0, 0.0)
                     .with_scale(Vec3::new(0.2, 0.2, 0.2)),
-                ..Default::default()
+                // text_anchor: Anchor::TopCenter,
+                ..default()
             })
             .insert(PlayerStarText)
             .id();
 
         let ownership_circle = commands
-            .spawn_bundle(GeometryBuilder::build_as(
-                &shape,
-                DrawMode::Fill(FillMode::color(*player.color.clone().set_a(0.2))),
-                Transform::default(),
+            .spawn((
+                ShapeBundle {
+                    path: GeometryBuilder::build_as(&shape),
+                    ..default()
+                },
+                Fill::color(*player.color.clone().set_a(0.2)),
             ))
             .insert(OwnershipCircle)
             .id();
@@ -103,7 +100,7 @@ fn player_assigned_star(
 fn star_assignment_changed(
     mut query_star: Query<(&mut Sprite, &OwnedBy, &Children), (With<Star>, Changed<OwnedBy>)>,
     mut q_player_star_text: Query<&mut Text, With<PlayerStarText>>,
-    mut q_ownership_circle: Query<&mut DrawMode, With<OwnershipCircle>>,
+    mut q_ownership_circle: Query<&mut Fill, With<OwnershipCircle>>,
     player_query: Query<&Player>,
 ) {
     for (mut sprite, owned_by, children) in query_star.iter_mut() {
@@ -120,11 +117,9 @@ fn star_assignment_changed(
                 text.sections[0].value = player.name.to_string();
             }
 
-            let draw_mode = q_ownership_circle.get_mut(child);
-            if let Ok(mut draw_mode) = draw_mode {
-                if let DrawMode::Fill(ref mut fill_mode) = *draw_mode {
-                    fill_mode.color = *player.color.clone().set_a(0.2);
-                }
+            let fill = q_ownership_circle.get_mut(child);
+            if let Ok(mut fill) = fill {
+                fill.color = *player.color.clone().set_a(0.2);
             }
         }
     }
@@ -135,10 +130,7 @@ fn star_resource_label(
     mut commands: Commands,
     asset_server: Res<AssetServer>,
 ) {
-    let text_alignment = TextAlignment {
-        vertical: VerticalAlign::Bottom,
-        horizontal: HorizontalAlign::Center,
-    };
+    let text_alignment = TextAlignment::Center;
     let font = asset_server.load("fonts/FiraSans-Bold.ttf");
     let text_style = TextStyle {
         font,
@@ -148,7 +140,7 @@ fn star_resource_label(
 
     for (entity, star) in query.iter() {
         let label = commands
-            .spawn_bundle(Text2dBundle {
+            .spawn(Text2dBundle {
                 text: Text {
                     sections: vec![
                         TextSection {
@@ -161,9 +153,10 @@ fn star_resource_label(
                         },
                     ],
                     alignment: text_alignment,
+                    ..default()
                 },
                 transform: Transform::from_xyz(0.0, 15.0, 0.0).with_scale(Vec3::new(0.2, 0.2, 0.2)),
-                ..Default::default()
+                ..default()
             })
             .insert(StarText)
             .id();
@@ -192,42 +185,40 @@ fn update_star_text(
 fn setup_player_score_ui(mut commands: Commands, asset_server: Res<AssetServer>) {
     // PlayerScoreHolder
     commands
-        .spawn_bundle(NodeBundle {
+        .spawn(NodeBundle {
             style: Style {
                 size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 justify_content: JustifyContent::SpaceBetween,
-                ..Default::default()
+                ..default()
             },
-            color: Color::NONE.into(),
-            ..Default::default()
+            ..default()
         })
         .insert(PlayerScoreHolder);
 
     commands
-        .spawn_bundle(TextBundle {
+        .spawn(TextBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
                 position_type: PositionType::Absolute,
-                justify_content: JustifyContent::Center,
-                align_items: AlignItems::FlexEnd,
-                ..Default::default()
+                position: UiRect {
+                    left: Val::Percent(45.0),
+                    right: Val::Percent(50.0),
+                    bottom: Val::Percent(0.0),
+                    ..default()
+                },
+
+                ..default()
             },
-            // Use the `Text::with_section` constructor
             text: Text::from_section(
-                // Accepts a `String` or any type that converts into a `String`, such as `&str`
                 "".to_string(),
                 TextStyle {
                     font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                     font_size: 40.0,
                     color: Color::WHITE,
                 },
-                // Note: You can use `Default::default()` in place of the `TextAlignment`
             )
-            .with_alignment(TextAlignment {
-                horizontal: HorizontalAlign::Center,
-                vertical: VerticalAlign::Center,
-            }),
-            ..Default::default()
+            .with_alignment(TextAlignment::Center),
+
+            ..default()
         })
         .insert(ResultText);
 }
@@ -241,33 +232,27 @@ fn add_player_score(
     let holder = ok_or_return!(q_holder.get_single());
     for (i, (player, player_entity)) in q_player_add.iter().enumerate() {
         let player_score = commands
-            .spawn_bundle(TextBundle {
+            .spawn(TextBundle {
                 style: Style {
                     align_self: AlignSelf::FlexEnd,
                     position_type: PositionType::Absolute,
                     position: UiRect {
                         top: Val::Px(22.0 * ((i + 1) as f32)),
                         right: Val::Px(15.0),
-                        ..Default::default()
+                        ..default()
                     },
-                    ..Default::default()
+                    ..default()
                 },
-                // Use the `Text::with_section` constructor
                 text: Text::from_section(
-                    // Accepts a `String` or any type that converts into a `String`, such as `&str`
                     format!("{}:   1 stars", player.name),
                     TextStyle {
                         font: asset_server.load("fonts/FiraSans-Bold.ttf"),
                         font_size: 20.0,
                         color: player.color,
                     },
-                    // Note: You can use `Default::default()` in place of the `TextAlignment`
                 )
-                .with_alignment(TextAlignment {
-                    horizontal: HorizontalAlign::Center,
-                    ..Default::default()
-                }),
-                ..Default::default()
+                .with_alignment(TextAlignment::Center),
+                ..default()
             })
             .insert(PlayerScore {
                 player: player_entity,
@@ -316,6 +301,6 @@ fn update_player_score(
     } else if our_score as f32 > total_stars as f32 * 0.8 {
         "Victory!\nRefresh to play again".to_string()
     } else {
-        "".to_string()
+        "TEST".to_string()
     };
 }

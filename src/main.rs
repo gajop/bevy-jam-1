@@ -40,7 +40,7 @@ fn main() {
         .add_plugin(SelectionPlugin)
         .add_plugin(SelectionUIPlugin)
         .add_plugin(StarGenerationPlugin)
-        .insert_resource(Msaa { samples: 4 });
+        .insert_resource(Msaa::Sample4);
 
     #[cfg(target_arch = "wasm32")]
     {

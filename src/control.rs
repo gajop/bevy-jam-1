@@ -119,7 +119,7 @@ fn mouse_send(
                 fleet.size -= send_fleet_size;
 
                 commands
-                    .spawn()
+                    .spawn_empty()
                     .insert(Fleet {
                         player: fleet.player,
                         size: send_fleet_size,
@@ -209,7 +209,7 @@ fn attack_selection(
             my_fleet.size -= send_fleet_size;
 
             commands
-                .spawn()
+                .spawn_empty()
                 .insert(Fleet {
                     player: my_fleet.player,
                     size: send_fleet_size,

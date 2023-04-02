@@ -54,25 +54,17 @@ fn mark_selected_with_rectangle(
             };
 
             let child = commands
-                .spawn_bundle(GeometryBuilder::build_as(
-                    &rect_shape,
-                    // ShapeColors::outlined(Color::rgba(0.0, 0.0, 0.0, 0.0), Color::PURPLE),
-                    // DrawMode::Outlined {
-                    //     fill_options: FillOptions::default(),
-                    //     outline_options: StrokeOptions::default().with_line_width(2.0),
-                    // },
-                    DrawMode::Outlined {
-                        fill_mode: FillMode {
-                            options: FillOptions::default(),
-                            color: Color::rgba(0.0, 0.0, 0.0, 0.0),
-                        },
-                        outline_mode: StrokeMode {
-                            options: StrokeOptions::default()
-                                .with_line_width(2.0 * transform.scale.x),
-                            color: Color::PURPLE,
-                        },
+                .spawn((
+                    ShapeBundle {
+                        path: GeometryBuilder::build_as(&rect_shape),
+                        transform: Transform::from_xyz(0.0, 0.0, 5.0),
+                        ..default()
                     },
-                    Transform::from_xyz(0.0, 0.0, 5.0),
+                    Fill::color(Color::rgba(0.0, 0.0, 0.0, 0.0)),
+                    Stroke {
+                        options: StrokeOptions::default().with_line_width(2.0 * transform.scale.x),
+                        color: Color::PURPLE,
+                    },
                 ))
                 .insert(Selected)
                 .id();

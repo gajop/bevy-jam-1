@@ -1,10 +1,9 @@
 use bevy::prelude::*;
-use bevy_inspector_egui::Inspectable;
 use rand::Rng;
 
 use crate::star_generation::Star;
 
-#[derive(Component, Inspectable)]
+#[derive(Component)]
 pub struct Player {
     pub name: String,
     pub is_human: bool,
@@ -16,6 +15,7 @@ pub struct OwnedBy {
     pub player: Entity,
 }
 
+#[derive(Resource)]
 struct GeneratedPlayers {
     generated: bool,
 }
@@ -52,7 +52,7 @@ fn generate_players(
 
     for i in 0..10 {
         let player = commands
-            .spawn()
+            .spawn_empty()
             .insert(Player {
                 name: format!("AI: {}", i + 1),
                 is_human: false,
@@ -68,7 +68,7 @@ fn generate_players(
     }
 
     let player = commands
-        .spawn()
+        .spawn_empty()
         .insert(Player {
             name: "You".to_string(),
             is_human: true,

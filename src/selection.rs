@@ -1,4 +1,4 @@
-use bevy::{input::mouse::*, prelude::*};
+use bevy::{input::mouse::*, prelude::*, window::PrimaryWindow};
 
 use bevy_prototype_lyon::prelude::*;
 use ctrl_macros::{ok_or_return, some_or_return};
@@ -11,7 +11,7 @@ pub struct Selectable {
     pub height: f32,
 }
 
-#[derive(Component, Default, Debug)]
+#[derive(Resource, Default, Debug)]
 pub struct SelectionRect {
     pub first_x: Option<f32>,
     pub first_y: Option<f32>,
@@ -45,7 +45,7 @@ impl Plugin for SelectionPlugin {
 fn mouse_button_input(
     buttons: Res<Input<MouseButton>>,
     mut selection_rect: ResMut<SelectionRect>,
-    windows: Res<Windows>,
+    q_window: Query<&Window, With<PrimaryWindow>>,
     mut query: Query<&mut Transform, With<TopDownCamera>>,
     mut ev_selection_changed: EventWriter<SelectionChanged>,
 
@@ -57,7 +57,7 @@ fn mouse_button_input(
         commands.entity(selection_marker).despawn();
     }
 
-    let window = some_or_return!(windows.get_primary());
+    let window = ok_or_return!(q_window.get_single());
     let cursor_position = some_or_return!(window.cursor_position());
     let transform = ok_or_return!(query.get_single_mut());
 
@@ -104,20 +104,17 @@ fn mouse_button_input(
             origin: shapes::RectangleOrigin::BottomLeft,
         };
         commands
-            .spawn_bundle(GeometryBuilder::build_as(
-                &rect_shape,
-                // ShapeColors::outlined(Color::rgba(0.0, 0.0, 0.0, 0.0), Color::WHITE),
-                DrawMode::Outlined {
-                    fill_mode: FillMode {
-                        options: FillOptions::default(),
-                        color: Color::rgba(0.0, 0.0, 0.0, 0.0),
-                    },
-                    outline_mode: StrokeMode {
-                        options: StrokeOptions::default().with_line_width(2.0 * transform.scale.x),
-                        color: Color::WHITE,
-                    },
+            .spawn((
+                ShapeBundle {
+                    path: GeometryBuilder::build_as(&rect_shape),
+                    transform: Transform::from_xyz(x1, y1, 10.0),
+                    ..default()
                 },
-                Transform::from_xyz(x1, y1, 10.0),
+                Fill::color(Color::rgba(0.0, 0.0, 0.0, 0.0)),
+                Stroke {
+                    options: StrokeOptions::default().with_line_width(2.0 * transform.scale.x),
+                    color: Color::WHITE,
+                },
             ))
             .insert(SelectionRectMarker);
     }

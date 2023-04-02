@@ -6,6 +6,7 @@ use crate::{
     top_down_camera::{TopDownCamera, TopDownCameraPlugin},
 };
 
+#[derive(Resource)]
 struct ZoomedIn(bool);
 
 pub struct CameraPlugin;
@@ -25,7 +26,7 @@ fn setup_camera(mut commands: Commands) {
     camera_bundle.transform.scale.x *= 0.5;
     camera_bundle.transform.scale.y *= 0.5;
 
-    commands.spawn_bundle(camera_bundle).insert(TopDownCamera {
+    commands.spawn(camera_bundle).insert(TopDownCamera {
         scroll_sensitivity: 2.0,
         ..TopDownCamera::default()
     });

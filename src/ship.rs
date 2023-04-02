@@ -1,4 +1,6 @@
-use bevy::{prelude::*, time::FixedTimestep};
+use std::time::Duration;
+
+use bevy::{prelude::*, time::common_conditions::on_timer};
 use ctrl_macros::ok_or_continue;
 
 use crate::{
@@ -30,18 +32,13 @@ pub struct FlyTo {
 
 impl Plugin for ShipPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(TWICE_PER_SECOND))
-                .with_system(generate_ships_at_owned_stars),
+        app.add_system(
+            generate_ships_at_owned_stars
+                .run_if(on_timer(Duration::from_secs_f64(TWICE_PER_SECOND))),
         )
         .add_system(generate_new_ships_at_owned_stars)
         .add_system(generate_icon_for_fly_to_ships)
-        .add_system_set(
-            SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(FLY_TO_TIME_STEP))
-                .with_system(fly_to),
-        )
+        .add_system(fly_to.run_if(on_timer(Duration::from_secs_f64(FLY_TO_TIME_STEP))))
         .add_system(fight)
         .add_system(change_fleet_ownership);
     }
@@ -67,15 +64,15 @@ fn generate_new_ships_at_owned_stars(
         let player = ok_or_continue!(player_query.get(owned_by.player));
 
         let fleet = commands
-            .spawn_bundle(SpriteBundle {
+            .spawn(SpriteBundle {
                 texture: asset_server.load("enemy_E.png"),
                 transform: Transform::from_xyz(10.0, 10.0, 0.0),
                 sprite: Sprite {
                     color: player.color,
                     custom_size: Some(Vec2::new(10.0, 10.0)),
-                    ..Default::default()
+                    ..default()
                 },
-                ..Default::default()
+                ..default()
             })
             .insert(Fleet {
                 player: owned_by.player,
@@ -102,15 +99,15 @@ fn generate_icon_for_fly_to_ships(
 
         let transform = *q_origin.get(fly_to.origin_star).unwrap();
 
-        commands.entity(entity).insert_bundle(SpriteBundle {
+        commands.entity(entity).insert(SpriteBundle {
             texture: asset_server.load("enemy_E.png"),
             sprite: Sprite {
                 color: player.color,
                 custom_size: Some(Vec2::new(10.0, 10.0)),
-                ..Default::default()
+                ..default()
             },
             transform,
-            ..Default::default()
+            ..default()
         });
     }
 }

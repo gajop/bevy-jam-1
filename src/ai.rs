@@ -1,4 +1,6 @@
-use bevy::{prelude::*, time::FixedTimestep};
+use std::time::Duration;
+
+use bevy::{prelude::*, time::common_conditions::on_timer};
 use ctrl_macros::ok_or_continue;
 
 use crate::{
@@ -7,17 +9,13 @@ use crate::{
     star_generation::Star,
 };
 
-const EVERY_FIVE_SECONDS: f64 = 5.0;
+const EVERY_FIVE_SECONDS: f32 = 5.0;
 
 pub struct AiPlugin;
 
 impl Plugin for AiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system_set(
-            SystemSet::new()
-                .with_run_criteria(FixedTimestep::step(EVERY_FIVE_SECONDS))
-                .with_system(send_fleet),
-        );
+        app.add_system(send_fleet.run_if(on_timer(Duration::from_secs_f32(EVERY_FIVE_SECONDS))));
     }
 }
 
@@ -63,7 +61,7 @@ fn send_fleet(
             fleet.size -= send_fleet_size;
 
             commands
-                .spawn()
+                .spawn_empty()
                 .insert(Fleet {
                     player: fleet.player,
                     size: send_fleet_size,
