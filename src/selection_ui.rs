@@ -15,7 +15,7 @@ pub struct SelectionUIPlugin;
 
 impl Plugin for SelectionUIPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(mark_selected_with_rectangle);
+        app.add_systems(Update, mark_selected_with_rectangle);
     }
 }
 

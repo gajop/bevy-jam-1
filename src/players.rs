@@ -25,7 +25,7 @@ pub struct PlayerPlugin;
 impl Plugin for PlayerPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(GeneratedPlayers { generated: false })
-            .add_system(generate_players);
+            .add_systems(Update, generate_players);
     }
 }
 

@@ -29,22 +29,22 @@ fn main() {
     let mut app = App::new();
 
     app.add_plugins(DefaultPlugins)
-        .add_plugin(AiPlugin)
-        .add_plugin(CameraPlugin)
-        .add_plugin(ControlPlugin)
-        .add_plugin(DebugPlugin)
-        .add_plugin(GameUiPlugin)
-        .add_plugin(PlayerPlugin)
-        .add_plugin(ShapePlugin)
-        .add_plugin(ShipPlugin)
-        .add_plugin(SelectionPlugin)
-        .add_plugin(SelectionUIPlugin)
-        .add_plugin(StarGenerationPlugin)
+        .add_plugins(AiPlugin)
+        .add_plugins(CameraPlugin)
+        .add_plugins(ControlPlugin)
+        .add_plugins(DebugPlugin)
+        .add_plugins(GameUiPlugin)
+        .add_plugins(PlayerPlugin)
+        .add_plugins(ShapePlugin)
+        .add_plugins(ShipPlugin)
+        .add_plugins(SelectionPlugin)
+        .add_plugins(SelectionUIPlugin)
+        .add_plugins(StarGenerationPlugin)
         .insert_resource(Msaa::Sample4);
 
     #[cfg(target_arch = "wasm32")]
     {
-        app.add_plugin(bevy_web_resizer::Plugin);
+        app.add_plugins(bevy_web_resizer::Plugin);
     }
 
     app.run();

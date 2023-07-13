@@ -28,7 +28,7 @@ pub struct TopDownCameraPlugin;
 
 impl Plugin for TopDownCameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(mouse_control).add_system(key_control);
+        app.add_systems(Update, mouse_control).add_systems(Update, key_control);
     }
 }
 
@@ -49,7 +49,7 @@ fn mouse_control(
     let delta_zoom = 1.0 + zoom_sensitivity;
 
     let rel_x = cursor_position.x / window.width();
-    let rel_y = cursor_position.y / window.height();
+    let rel_y = (window.height() - cursor_position.y) / window.height();
 
     for ev in scroll_evr.iter() {
         match ev.unit {
@@ -115,7 +115,7 @@ pub fn screen_to_world(camera_transform: &Transform, cursor_pos: Vec2, screen_si
     let scaled_screen_x =
         screen_size.x * camera_transform.scale.x * (cursor_pos.x / screen_size.x - 0.5);
     let scaled_screen_y =
-        screen_size.y * camera_transform.scale.y * (cursor_pos.y / screen_size.y - 0.5);
+        screen_size.y * camera_transform.scale.y * ((screen_size.y - cursor_pos.y) / screen_size.y - 0.5);
 
     Vec2::new(left_x + scaled_screen_x, left_y + scaled_screen_y)
 }

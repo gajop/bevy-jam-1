@@ -32,15 +32,15 @@ pub struct FlyTo {
 
 impl Plugin for ShipPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(
+        app.add_systems(Update,
             generate_ships_at_owned_stars
                 .run_if(on_timer(Duration::from_secs_f64(TWICE_PER_SECOND))),
         )
-        .add_system(generate_new_ships_at_owned_stars)
-        .add_system(generate_icon_for_fly_to_ships)
-        .add_system(fly_to.run_if(on_timer(Duration::from_secs_f64(FLY_TO_TIME_STEP))))
-        .add_system(fight)
-        .add_system(change_fleet_ownership);
+        .add_systems(Update, generate_new_ships_at_owned_stars)
+        .add_systems(Update, generate_icon_for_fly_to_ships)
+        .add_systems(Update, fly_to.run_if(on_timer(Duration::from_secs_f64(FLY_TO_TIME_STEP))))
+        .add_systems(Update, fight)
+        .add_systems(Update, change_fleet_ownership);
     }
 }
 

@@ -22,9 +22,12 @@ pub struct SelectionRect {
 #[derive(Component)]
 struct SelectionRectMarker;
 
+#[derive(Event)]
 pub struct SelectionChanged {
     pub mouse_button: MouseButton,
 }
+
+#[derive(Event)]
 pub struct OnSelected {
     pub entities: Vec<Entity>,
     pub mouse_button: MouseButton,
@@ -37,8 +40,8 @@ impl Plugin for SelectionPlugin {
         app.add_event::<SelectionChanged>()
             .add_event::<OnSelected>()
             .insert_resource(SelectionRect::default())
-            .add_system(mouse_button_input)
-            .add_system(selection_changed);
+            .add_systems(Update, mouse_button_input)
+            .add_systems(Update, selection_changed);
     }
 }
 

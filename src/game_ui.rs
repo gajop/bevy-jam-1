@@ -34,13 +34,13 @@ pub struct ResultText;
 
 impl Plugin for GameUiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup_player_score_ui)
-            .add_system(add_player_score)
-            .add_system(update_player_score)
-            .add_system(player_assigned_star)
-            .add_system(star_assignment_changed)
-            .add_system(star_resource_label)
-            .add_system(update_star_text);
+        app.add_systems(Startup, setup_player_score_ui)
+            .add_systems(Update, add_player_score)
+            .add_systems(Update, update_player_score)
+            .add_systems(Update, player_assigned_star)
+            .add_systems(Update, star_assignment_changed)
+            .add_systems(Update, star_resource_label)
+            .add_systems(Update, update_star_text);
     }
 }
 
@@ -187,7 +187,8 @@ fn setup_player_score_ui(mut commands: Commands, asset_server: Res<AssetServer>)
     commands
         .spawn(NodeBundle {
             style: Style {
-                size: Size::new(Val::Percent(100.0), Val::Percent(100.0)),
+                width: Val::Percent(100.0),
+                height: Val::Percent(100.0),
                 justify_content: JustifyContent::SpaceBetween,
                 ..default()
             },
@@ -199,12 +200,9 @@ fn setup_player_score_ui(mut commands: Commands, asset_server: Res<AssetServer>)
         .spawn(TextBundle {
             style: Style {
                 position_type: PositionType::Absolute,
-                position: UiRect {
-                    left: Val::Percent(45.0),
-                    right: Val::Percent(50.0),
-                    bottom: Val::Percent(0.0),
-                    ..default()
-                },
+                left: Val::Percent(45.0),
+                right: Val::Percent(50.0),
+                bottom: Val::Percent(0.0),
 
                 ..default()
             },
@@ -236,11 +234,8 @@ fn add_player_score(
                 style: Style {
                     align_self: AlignSelf::FlexEnd,
                     position_type: PositionType::Absolute,
-                    position: UiRect {
-                        top: Val::Px(22.0 * ((i + 1) as f32)),
-                        right: Val::Px(15.0),
-                        ..default()
-                    },
+                    top: Val::Px(22.0 * ((i + 1) as f32)),
+                    right: Val::Px(15.0),
                     ..default()
                 },
                 text: Text::from_section(

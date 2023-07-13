@@ -15,7 +15,7 @@ pub struct AiPlugin;
 
 impl Plugin for AiPlugin {
     fn build(&self, app: &mut App) {
-        app.add_system(send_fleet.run_if(on_timer(Duration::from_secs_f32(EVERY_FIVE_SECONDS))));
+        app.add_systems(Update, send_fleet.run_if(on_timer(Duration::from_secs_f32(EVERY_FIVE_SECONDS))));
     }
 }
 

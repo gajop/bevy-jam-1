@@ -22,9 +22,9 @@ impl Plugin for ControlPlugin {
         //     fleet: None,
         //     star: None,
         // })
-        // .add_system(mouse_select)
-        // .add_system(mouse_send)
-        app.add_system(attack_selection);
+        // .add_systems(Update, mouse_select)
+        // .add_systems(Update, mouse_send)
+        app.add_systems(Update, attack_selection);
     }
 }
 

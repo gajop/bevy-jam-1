@@ -13,10 +13,10 @@ pub struct CameraPlugin;
 
 impl Plugin for CameraPlugin {
     fn build(&self, app: &mut App) {
-        app.add_startup_system(setup_camera)
+        app.add_systems(Startup, setup_camera)
             .insert_resource(ZoomedIn(false))
-            .add_system(zoom_camera_to_player)
-            .add_plugin(TopDownCameraPlugin);
+            .add_systems(Update, zoom_camera_to_player)
+            .add_plugins(TopDownCameraPlugin);
     }
 }
 
